@@ -1,0 +1,8 @@
+# Manejo de saltos de línea
+* text=auto
+
+# Python
+*.py text eol=lf
+
+# Markdown
+*.md text eol=lf

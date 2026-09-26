@@ -1,0 +1,16 @@
+# ============================================
+# EsSaludManager - Dependencias de Python
+# ============================================
+
+# GUI (Tkinter viene con Python, no necesita instalación)
+# tkinter
+
+# Utilidades
+python-dateutil==2.8.2
+reportlab==4.0.0
+
+# Pruebas
+coverage==7.3.0
+
+# Empaquetado
+pyinstaller==6.0.0
