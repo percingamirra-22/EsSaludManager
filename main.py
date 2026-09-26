@@ -4,7 +4,7 @@ Curso: Lenguajes de Programación
 Fecha: 26 de septiembre de 2026
 """
 
-from scr.gui.app import App
+from src.gui.app import App
 
 
 def main():
