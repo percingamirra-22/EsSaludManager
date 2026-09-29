@@ -1,30 +1,35 @@
+# src/gui/ventanas/ventana_principal.py
 import tkinter as tk
 from tkinter import ttk
-# Importamos tu Singleton de configuración
+
+# Importamos utilidades
 from src.utils.configuracion import Configuracion 
+from src.utils.logger import LogSistema 
+
+# Importamos las ventanas secundarias que acabas de crear
+from src.gui.ventanas.ventana_citas import VentanaCitas
+from src.gui.ventanas.ventana_historial import VentanaHistorial
+from src.gui.ventanas.ventana_medicamentos import VentanaMedicamentos
 
 class VentanaPrincipal:
     def __init__(self):
-        # Crear la ventana base
         self.root = tk.Tk()
         
-        # Obtener el nombre del hospital desde tu configuración
         config = Configuracion.get_instance()
         nombre_hospital = config.obtener("nombre_hospital")
+        self.logger = LogSistema.get_instance()
         
-        # Configurar la ventana (título y tamaño)
+        self.logger.registrar("Se inició la interfaz gráfica del sistema.", "INFO")
+        
         self.root.title(f"Sistema de Gestión - {nombre_hospital}")
         self.root.geometry("800x600")
         
-        # Crear un título de texto en la ventana
         titulo = tk.Label(self.root, text=nombre_hospital, font=("Arial", 20, "bold"))
         titulo.pack(pady=30)
         
-        # Crear un contenedor para los botones
         marco_botones = ttk.Frame(self.root)
         marco_botones.pack(pady=20)
         
-        # Crear los botones de los módulos principales
         btn_citas = ttk.Button(marco_botones, text="Gestión de Citas", command=self.abrir_citas)
         btn_citas.grid(row=0, column=0, padx=10)
         
@@ -34,21 +39,23 @@ class VentanaPrincipal:
         btn_medicamentos = ttk.Button(marco_botones, text="Medicamentos", command=self.abrir_medicamentos)
         btn_medicamentos.grid(row=0, column=2, padx=10)
 
-    # Funciones de prueba para los botones
+    # Funciones que abren las ventanas conectadas
     def abrir_citas(self):
-        print("Abriendo módulo de citas...")
+        self.logger.registrar("Abriendo módulo Citas...", "INFO")
+        # Le pasamos 'self.root' para que sepa quién es la ventana principal
+        VentanaCitas(self.root) 
 
     def abrir_historial(self):
-        print("Abriendo módulo de historial...")
+        self.logger.registrar("Abriendo módulo Historial...", "INFO")
+        VentanaHistorial(self.root)
 
     def abrir_medicamentos(self):
-        print("Abriendo módulo de medicamentos...")
+        self.logger.registrar("Abriendo módulo Medicamentos...", "INFO")
+        VentanaMedicamentos(self.root)
 
-    # Arrancar la interfaz
     def iniciar(self):
         self.root.mainloop()
 
-# Esto permite probar la ventana suelta
 if __name__ == "__main__":
     app = VentanaPrincipal()
     app.iniciar()
