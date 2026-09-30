@@ -1,0 +1,673 @@
+@startuml Diagrama_Clases
+skinparam classAttributeIconSize 0
+skinparam classMethodIconSize 0
+skinparam linetype ortho
+
+' ============================================
+' Dominio 1: Pacientes y seguros
+' ============================================
+
+class Paciente {
+    - id: int
+    - codigoPaciente: str
+    - nombres: str
+    - apellidos: str
+    - tipoDocumento: str {DNI, CE, PAS}
+    - numeroDocumento: str
+    - fechaNacimiento: date
+    - sexo: str {M, F, O}
+    - telefono: str
+    - email: str
+    - direccion: str
+    - estado: bool {true=activo}
+    - fechaRegistro: datetime
+    - usuarioRegistro: str
+    + __init__(codigoPaciente: str, nombres: str, apellidos: str, tipoDocumento: str, numeroDocumento: str, fechaNacimiento: date, sexo: str): bool
+    + registrar(): bool
+    + actualizar(datos: dict): bool
+    + desactivar(): bool
+    + obtenerHistorial(): HistorialClinico
+    + validarDocumento(): bool
+}
+
+class Seguro {
+    - id: int
+    - tipoSeguro: str {EsSalud, Privado}
+    - nombreAseguradora: str
+    - codigoPlan: str
+    - numeroPoliza: str
+    - estado: bool
+    - fechaInicio: date
+    - fechaFin: date
+    + __init__(tipoSeguro: str, nombreAseguradora: str, codigoPlan: str, numeroPoliza: str, fechaInicio: date, fechaFin: date): bool
+    + verificarCobertura(): bool
+    + calcularCobertura(servicio: Servicio): Cobertura
+    + renovar(): bool
+    + cancelar(): bool
+}
+
+Paciente "0..*" -- "0..1" Seguro : tiene
+
+' ============================================
+' Dominio 2: Historial clínico
+' ============================================
+
+class HistorialClinico {
+    - id: int
+    - pacienteId: int
+    - numeroHistoria: str
+    - fechaApertura: datetime
+    - estado: str {activo, cerrado, desactivado}
+    - version: int
+    - fechaUltimaModificacion: datetime
+    - usuarioUltimaModificacion: str
+    + __init__(pacienteId: int, numeroHistoria: str, fechaApertura: datetime): bool
+    + registrarEntrada(entrada: EntradaHistorial): bool
+    + leerEntradas(filtro: dict): list
+    + actualizarEntrada(entradaId: int, datos: dict): bool
+    + desactivar(): bool
+    + obtenerVersiones(): list
+    + auditarCambio(accion: str, usuario: str, fecha: datetime): bool
+}
+
+class EntradaHistorial {
+    - id: int
+    - historialId: int
+    - tipoEntrada: str {nota, diagnóstico, tratamiento, examen, receta}
+    - contenido: str
+    - fechaRegistro: datetime
+    - usuarioRegistro: str
+    - version: int
+    - estado: str {activa, desactivada}
+    + __init__(historialId: int, tipoEntrada: str, contenido: str, fechaRegistro: datetime): bool
+    + crear(): bool
+    + modificar(datos: dict): bool
+    + desactivar(): bool
+    + obtenerAuditoria(): list
+}
+
+class Auditoria {
+    - id: int
+    - usuarioId: int
+    - empleadoId: int
+    - accion: str
+    - recurso: str
+    - recursoId: int
+    - fechaAccion: datetime
+    - ipOrigen: str
+    - detalles: str
+    - estado: bool
+    + registrar(): bool
+    + obtenerHistorial(filtro: dict): list
+    + protegerIntegridad(): bool
+}
+
+Paciente "1" *-- "1..*" HistorialClinico : tiene
+HistorialClinico "1" *-- "0..*" EntradaHistorial : contiene
+HistorialClinico ..> Auditoria : audita
+EntradaHistorial ..> Auditoria : audita
+
+' ============================================
+' Dominio 3: Servicios, citas y exámenes
+' ============================================
+
+abstract class Servicio {
+    - id: int
+    - codigoServicio: str
+    - nombreServicio: str
+    - tipoServicio: str {consulta, examen, procedimiento}
+    - costoBase: float
+    - estado: bool
+    - fechaRegistro: datetime
+    + registrar(): bool <<abstract>>
+    + actualizar(datos: dict): bool <<abstract>>
+    + desactivar(): bool <<abstract>>
+}
+
+class Consulta {
+    - id: int
+    - servicioId: int
+    - especialistaId: int
+    - duracion: int {minutos}
+    - requierePreparacion: bool
+    + __init__(servicioId: int, especialistaId: int, duracion: int, requierePreparacion: bool): bool
+    + programarCita(): bool
+    + completarConsulta(): bool
+}
+
+class OrdenExamen {
+    - id: int
+    - pacienteId: int
+    - especialistaId: int
+    - fechaOrden: datetime
+    - estado: str {pendiente, completada, cancelada}
+    - examenesSolicitados: list
+    - observaciones: str
+    + __init__(pacienteId: int, especialistaId: int, fechaOrden: datetime): bool
+    + crear(): bool
+    + agregarExamen(examenId: int): bool
+    + enviarATecnico(): bool
+    + cancelar(): bool
+}
+
+class ExamenMedico {
+    - id: int
+    - servicioId: int
+    - ordenExamenId: int
+    - tecnicoId: int
+    - tipoExamen: str
+    - fechaRealizacion: datetime
+    - resultado: str
+    - archivoResultado: str
+    - estado: str {programado, en proceso, completado, cancelado}
+    + __init__(servicioId: int, ordenExamenId: int, tecnicoId: int, tipoExamen: str): bool
+    + realizar(): bool
+    + registrarResultado(resultado: str, archivo: str): bool
+    + cancelar(): bool
+}
+
+class Cita {
+    - id: int
+    - pacienteId: int
+    - recepcionistaId: int
+    - servicioId: int
+    - fechaInicio: datetime
+    - fechaFin: datetime
+    - estado: str {programada, completada, cancelada, reprogramada}
+    - motivo: str
+    - observaciones: str
+    - fechaCreacion: datetime
+    - usuarioCreacion: str
+    - fechaUltimaModificacion: datetime
+    - usuarioUltimaModificacion: str
+    + __init__(pacienteId: int, recepcionistaId: int, servicioId: int, fechaInicio: datetime, fechaFin: datetime, motivo: str): bool
+    + crear(): bool
+    + consultar(): Cita
+    + reprogramar(nuevaFecha: datetime, motivo: str): bool
+    + cancelar(motivo: str): bool
+    + verificarColisiones(): bool
+    + registrarHistorialCambios(): bool
+    + enviarRecordatorio(): bool
+}
+
+class Notificacion {
+    - id: int
+    - pacienteId: int
+    - citaId: int
+    - tipoNotificacion: str {recordatorio_cita, recordatorio_examen}
+    - mensaje: str
+    - fechaEnvio: datetime
+    - estado: str {pendiente, enviada, fallida}
+    - canal: str {sms, email}
+    + __init__(pacienteId: int, citaId: int, tipoNotificacion: str, mensaje: str): bool
+    + enviar(): bool
+    + registrarEstado(estado: str): bool
+}
+
+Servicio <|-- Consulta : es un
+Servicio <|-- ExamenMedico : es un
+OrdenExamen "1" o-- "0..*" ExamenMedico : solicita
+Cita "0..*" -- "1" Paciente : pertenece
+Cita "0..*" -- "1" Recepcionista : gestiona
+Cita "0..*" --> "1" Servicio : requiere
+Cita "1" o-- "0..*" Notificacion : genera
+Cita ..> Auditoria : audita
+Notificacion ..> Auditoria : audita
+OrdenExamen ..> Auditoria : audita
+OrdenExamen "0..*" -- "1" Especialista : emite
+ExamenMedico "0..*" -- "1" Tecnico : realiza
+ExamenMedico ..> Auditoria : audita
+Especialista "1" -- "0..*" Consulta : atiende
+
+' ============================================
+' Dominio 4: Empleados y roles
+' ============================================
+
+abstract class Empleado {
+    - id: int
+    - codigoEmpleado: str
+    - nombres: str
+    - apellidos: str
+    - tipoDocumento: str {DNI, CE, PAS}
+    - numeroDocumento: str
+    - telefono: str
+    - email: str
+    - direccion: str
+    - fechaContratacion: date
+    - estado: bool
+    - fechaRegistro: datetime
+    - fechaDespido: date
+    - usuarioRegistro: str
+    + registrar(): bool <<abstract>>
+    + actualizar(datos: dict): bool <<abstract>>
+    + desactivar(): bool <<abstract>>
+    + obtenerUsuario(): Usuario
+    + asignarRol(rolId: int): bool
+    + despedir(fechaDespido: date): bool
+}
+
+class Especialista {
+    - id: int
+    - empleadoId: int
+    - especialidad: str
+    - numeroColegiatura: str
+    - horariosDisponibles: list
+    + __init__(codigoEmpleado: str, nombres: str, apellidos: str, tipoDocumento: str, numeroDocumento: str, fechaContratacion: date, especialidad: str, numeroColegiatura: str): bool
+    + obtenerHorarios(): list
+    + verificarDisponibilidad(fecha: datetime): bool
+    + atenderCita(citaId: int): bool
+}
+
+class Gerente {
+    - id: int
+    - empleadoId: int
+    - area: str
+    - nivelGerencial: str
+    + __init__(codigoEmpleado: str, nombres: str, apellidos: str, tipoDocumento: str, numeroDocumento: str, fechaContratacion: date, area: str, nivelGerencial: str): bool
+    + aprobarSolicitud(solicitudId: int): bool
+    + generarReporte(tipoReporte: str): Reporte
+}
+
+class Recepcionista {
+    - id: int
+    - empleadoId: int
+    - turno: str {Mañana, Tarde, Noche}
+    - moduloAtencion: str
+    + __init__(codigoEmpleado: str, nombres: str, apellidos: str, tipoDocumento: str, numeroDocumento: str, fechaContratacion: date, turno: str, moduloAtencion: str): bool
+    + programarCita(pacienteId: int, especialistaId: int, fecha: datetime): Cita
+    + cancelarCita(citaId: int, motivo: str): bool
+}
+
+class Tecnico {
+    - id: int
+    - empleadoId: int
+    - especialidadTecnica: str
+    - areaTrabajo: str
+    - certificaciones: list
+    + __init__(codigoEmpleado: str, nombres: str, apellidos: str, tipoDocumento: str, numeroDocumento: str, fechaContratacion: date, especialidadTecnica: str, areaTrabajo: str, certificaciones: list): bool
+    + realizarExamen(examenId: int): bool
+    + registrarResultado(examenId: int, resultado: str): bool
+}
+
+class Usuario {
+    - id: int
+    - empleadoId: int
+    - username: str
+    - passwordHash: str
+    - email: str
+    - estado: bool
+    - fechaCreacion: datetime
+    - fechaUltimoAcceso: datetime
+    + __init__(empleadoId: int, username: str, passwordHash: str, email: str): bool
+    + autenticar(username: str, password: str): bool
+    + cambiarPassword(nuevoPassword: str): bool
+    + registrarSesion(): bool
+    + cerrarSesion(): bool
+    + obtenerEmpleado(): Empleado
+}
+
+class Rol {
+    - id: int
+    - nombreRol: str
+    - descripcion: str
+    - estado: bool
+    - permisos: list
+    + __init__(nombreRol: str, descripcion: str): bool
+    + crear(): bool
+    + asignarPermiso(permiso: str): bool
+    + revocarPermiso(permiso: str): bool
+}
+
+class UsuarioRol {
+    - id: int
+    - usuarioId: int
+    - rolId: int
+    - fechaAsignacion: datetime
+    - estado: bool
+    - usuarioQueAsigno: str
+    + __init__(usuarioId: int, rolId: int, fechaAsignacion: datetime): bool
+    + asignar(): bool
+    + revocar(): bool
+}
+
+class Permiso {
+    - id: int
+    - codigoPermiso: str
+    - descripcion: str
+    - recurso: str
+    - accion: str {crear, leer, actualizar, eliminar, aprobar}
+    - estado: bool
+    + __init__(codigoPermiso: str, recurso: str, accion: str, descripcion: str): bool
+    + crear(): bool
+    + verificar(usuario: Usuario, recurso: str, accion: str): bool
+}
+
+class Sesion {
+    - id: int
+    - usuarioId: int
+    - fechaInicio: datetime
+    - fechaFin: datetime
+    - ipOrigen: str
+    - estado: str {activa, cerrada, expirada}
+    + __init__(usuarioId: int, fechaInicio: datetime, ipOrigen: str): bool
+    + iniciar(): bool
+    + cerrar(): bool
+    + obtenerSesionesActivas(usuarioId: int): list
+}
+
+Empleado <|-- Especialista : es un
+Empleado <|-- Gerente : es un
+Empleado <|-- Recepcionista : es un
+Empleado <|-- Tecnico : es un
+Usuario "0..1" --> "1" Empleado : pertenece
+UsuarioRol "0..*" -- "1" Usuario : asigna
+UsuarioRol "0..*" -- "1" Rol : asigna
+Rol "1" o-- "0..*" Permiso : contiene
+Usuario "1" *-- "0..*" Sesion : tiene
+Usuario ..> Auditoria : audita
+Empleado ..> Auditoria : audita
+
+' ============================================
+' Dominio 5: Medicamentos y stock
+' ============================================
+
+class Medicamento {
+    - id: int
+    - codigoMedicamento: str
+    - nombreGenerico: str
+    - nombreComercial: str
+    - formaFarmaceutica: str
+    - concentracion: str
+    - unidadMedida: str
+    - requiereReceta: bool
+    - stockMinimo: int {>= 0}
+    - estado: bool
+    - fechaRegistro: datetime
+    + __init__(codigoMedicamento: str, nombreGenerico: str, nombreComercial: str, formaFarmaceutica: str, concentracion: str, unidadMedida: str): bool
+    + registrar(): bool
+    + actualizar(datos: dict): bool
+    + desactivar(): bool
+    + verificarStock(): bool
+    + obtenerStockTotal(): int
+    + generarAlertaStock(): bool
+}
+
+class LoteMedicamento {
+    - id: int
+    - medicamentoId: int
+    - proveedorId: int
+    - numeroLote: str
+    - fechaFabricacion: date
+    - fechaVencimiento: date
+    - cantidadInicial: int {>= 0}
+    - cantidadActual: int {>= 0}
+    - estado: str {activo, agotado, vencido}
+    - fechaRegistro: datetime
+    + __init__(medicamentoId: int, proveedorId: int, numeroLote: str, fechaFabricacion: date, fechaVencimiento: date, cantidadInicial: int): bool
+    + registrar(): bool
+    + actualizarStock(cantidad: int, tipoMovimiento: str): bool
+    + verificarVencimiento(): bool
+    + generarAlertaStock(): bool
+}
+
+class MovimientoMedicamento {
+    - id: int
+    - loteId: int
+    - tipoMovimiento: str {entrada, salida, ajuste}
+    - cantidad: int
+    - fechaMovimiento: datetime
+    - usuarioResponsable: str
+    - motivo: str
+    - documentoReferencia: str
+    + __init__(loteId: int, tipoMovimiento: str, cantidad: int, fechaMovimiento: datetime): bool
+    + registrar(): bool
+    + auditar(): bool
+    + obtenerHistorial(loteId: int): list
+}
+
+class Proveedor {
+    - id: int
+    - razonSocial: str
+    - ruc: str
+    - direccion: str
+    - telefono: str
+    - email: str
+    - contactoNombre: str
+    - contactoTelefono: str
+    - estado: bool
+    - fechaRegistro: datetime
+    + __init__(razonSocial: str, ruc: str, direccion: str, telefono: str, email: str): bool
+    + registrar(): bool
+    + actualizar(datos: dict): bool
+    + desactivar(): bool
+    + obtenerCertificados(): list
+}
+
+class RecetaMedica {
+    - id: int
+    - pacienteId: int
+    - especialistaId: int
+    - fechaEmision: datetime
+    - estado: str {activa, dispensada, cancelada}
+    - items: list
+    - observaciones: str
+    - usuarioEmisor: str
+    + __init__(pacienteId: int, especialistaId: int, fechaEmision: datetime): bool
+    + crear(): bool
+    + agregarMedicamento(medicamentoId: int, dosis: str, frecuencia: str, duracion: int): bool
+    + quitarMedicamento(itemRecetaId: int): bool
+    + verificarDisponibilidad(): bool
+    + dispensar(): bool
+    + cancelar(): bool
+}
+
+class ItemReceta {
+    - id: int
+    - recetaId: int
+    - medicamentoId: int
+    - dosis: str
+    - frecuencia: str
+    - duracionDias: int
+    - cantidadDispensada: int
+    - estado: str
+    + __init__(recetaId: int, medicamentoId: int, dosis: str, frecuencia: str, duracionDias: int): bool
+    + crear(): bool
+    + actualizar(datos: dict): bool
+    + verificarStock(): bool
+}
+
+Medicamento "1" *-- "0..*" LoteMedicamento : tiene
+LoteMedicamento "0..*" -- "1" Proveedor : proviene
+LoteMedicamento "1" *-- "0..*" MovimientoMedicamento : registra
+RecetaMedica "0..*" -- "1" Paciente : pertenece
+RecetaMedica "0..*" -- "1" Especialista : emite
+RecetaMedica "1" *-- "1..*" ItemReceta : contiene
+ItemReceta "0..*" --> "1" Medicamento : referencia
+RecetaMedica ..> Auditoria : audita
+MovimientoMedicamento ..> Auditoria : audita
+LoteMedicamento ..> Auditoria : audita
+
+' ============================================
+' Dominio 6: Coberturas
+' ============================================
+
+class Cobertura {
+    - id: int
+    - seguroId: int
+    - servicioId: int
+    - porcentajeCobertura: float {0.0 <= x <= 100.0}
+    - montoMaximo: float {>= 0.0}
+    - copagoFijo: float {>= 0.0}
+    - estado: bool
+    - fechaInicio: date
+    - fechaFin: date
+    + __init__(seguroId: int, servicioId: int, porcentajeCobertura: float, montoMaximo: float, copagoFijo: float, fechaInicio: date, fechaFin: date): bool
+    + calcularCobertura(montoTotal: float): dict
+    + verificarVigencia(): bool
+    + actualizar(datos: dict): bool
+    + desactivar(): bool
+}
+
+Cobertura "0..*" -- "1" Seguro : pertenece
+Cobertura "0..*" -- "1" Servicio : aplica
+
+' ============================================
+' Dominio 7: Facturación y pagos
+' ============================================
+
+class Factura {
+    - id: int
+    - numeroFactura: str
+    - pacienteId: int
+    - fechaEmision: datetime
+    - estado: str {pendiente, pagada, anulada}
+    - montoTotal: float
+    - montoCubierto: float
+    - montoPaciente: float
+    - items: list
+    - usuarioEmisor: str
+    + __init__(numeroFactura: str, pacienteId: int, fechaEmision: datetime): bool
+    + crear(): bool
+    + agregarItem(servicioId: int, costo: float): bool
+    + quitarItem(itemFacturaId: int): bool
+    + aplicarCobertura(cobertura: Cobertura): bool
+    - recalcularMontos(): void
+    + generarEstadoCuenta(): dict
+    + anular(): bool
+}
+
+class ItemFactura {
+    - id: int
+    - facturaId: int
+    - servicioId: int
+    - descripcion: str
+    - costo: float
+    - estado: str
+    + __init__(facturaId: int, servicioId: int, descripcion: str, costo: float): bool
+    + crear(): bool
+    + actualizar(datos: dict): bool
+}
+
+class Pago {
+    - id: int
+    - facturaId: int
+    - monto: float
+    - fechaPago: datetime
+    - metodoPago: str {efectivo, tarjeta, transferencia}
+    - estado: str {registrado, conciliado}
+    - usuarioRegistro: str
+    - numeroReferencia: str
+    + __init__(facturaId: int, monto: float, fechaPago: datetime, metodoPago: str): bool
+    + registrar(): bool
+    + conciliar(): bool
+    + anular(): bool
+}
+
+Factura "0..*" -- "1" Paciente : pertenece
+Factura "1" *-- "1..*" ItemFactura : contiene
+ItemFactura "0..*" --> "1" Servicio : referencia
+Factura "1" o-- "0..*" Pago : tiene
+Factura ..> Auditoria : audita
+Pago ..> Auditoria : audita
+
+' ============================================
+' Dominio 8: Reportes e infraestructura
+' ============================================
+
+class Reporte {
+    - id: int
+    - tipoReporte: str
+    - filtros: dict
+    - fechaGeneracion: datetime
+    - formato: str {PDF, CSV}
+    - rutaArchivo: str
+    - usuarioSolicitanteId: int
+    + __init__(tipoReporte: str, fechaGeneracion: datetime, formato: str, usuarioSolicitanteId: int): bool
+    + generar(): bool
+    + exportar(): bool
+    + obtenerReporte(id: int): dict
+}
+
+class Configuracion {
+    - id: int
+    - clave: str
+    - valor: str
+    - descripcion: str
+    - fechaActualizacion: datetime
+    + obtener(clave: str): str
+    + actualizar(clave: str, valor: str): bool
+    + get_instance(): Configuracion <<static>>
+}
+
+class LogSistema {
+    - id: int
+    - nivel: str {INFO, WARNING, ERROR}
+    - mensaje: str
+    - fechaRegistro: datetime
+    - modulo: str
+    + registrar(mensaje: str, nivel: str): bool
+    + obtenerLogs(filtro: dict): list
+    + get_instance(): LogSistema <<static>>
+}
+
+Reporte "0..*" --> "1" Usuario : solicitado por
+Reporte ..> Auditoria : audita
+LogSistema ..> Configuracion : usa
+LogSistema ..> Auditoria : audita
+
+' ============================================
+' Notas
+' ============================================
+
+note right of Paciente
+  Representar al paciente y permitir
+  gestión de identidad y contacto.
+end note
+
+note right of HistorialClinico
+  Contener el historial clínico del paciente
+  con versionado y trazabilidad.
+end note
+
+note right of Servicio
+  Clase base para servicios médicos
+  (Consulta, ExamenMedico).
+end note
+
+note right of Empleado
+  Clase base para todos los empleados
+  del establecimiento.
+end note
+
+note right of Usuario
+  Gestionar credenciales de acceso
+  al sistema.
+end note
+
+note right of Medicamento
+  Catálogo de medicamentos.
+end note
+
+note right of Cobertura
+  Definir cobertura por servicio y seguro.
+end note
+
+note right of Factura
+  Factura emitida por servicios médicos.
+end note
+
+note right of Configuracion
+  Parámetros configurables globales del
+  sistema (Singleton).
+end note
+
+note right of LogSistema
+  Logger centralizado para registros
+  técnicos (Singleton).
+end note
+
+note right of Auditoria
+  Registrar acciones sobre datos sensibles.
+end note
+
+@enduml
