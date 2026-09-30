@@ -1,0 +1,24 @@
+-- ============================================
+-- EsSaludManager - Migraciones Futuras (v1.x)
+-- ============================================
+-- Descripción: Archivo reservado para migraciones de esquema futuras.
+-- Versión: 1.0.0
+-- Fecha: 2026-09-29
+-- ============================================
+--
+-- Instrucciones para agregar migraciones:
+-- 1. Agregar comentarios con fecha y descripción del cambio.
+-- 2. Usar ALTER TABLE para modificar esquemas existentes.
+-- 3. Usar INSERT/UPDATE para migrar datos si es necesario.
+-- 4. Probar en test_esalud.db antes de aplicar a producción.
+--
+-- Ejemplo:
+-- -- ============================================
+-- -- Migración v1.1 - 2026-10-05
+-- -- Agregar campo 'observaciones' a tabla 'paciente'
+-- -- ============================================
+-- ALTER TABLE paciente ADD COLUMN observaciones TEXT;
+--
+-- ============================================
+-- FIN DEL ARCHIVO DE MIGRACIONES
+-- ============================================

@@ -1,88 +1,149 @@
 """
-Módulo de conexión a base de datos SQLite
-Patrón: Singleton
+Módulo de conexión a base de datos SQLite.
+
+Implementa el patrón Singleton para garantizar una única conexión
+global en toda la aplicación.
 """
 
 import sqlite3
-from contextlib import contextmanager
-from typing import Optional
+from pathlib import Path
+from typing import Any
 
 
 class Database:
-    """Singleton para conexión a base de datos SQLite"""
+    """
+    Singleton de conexión a SQLite.
 
-    _instancia: Optional["Database"] = None
+    Uso:
+        db = Database.get_instance()
+        conn = db.get_connection()
+        cursor = conn.execute("SELECT * FROM paciente")
+    """
 
-    def __new__(cls, db_name: str = "data/esalud.db") -> "Database":
-        if cls._instancia is None:
-            cls._instancia = super().__new__(cls)
-            cls._instancia.db_name = db_name
-        return cls._instancia
+    _instance: "Database | None" = None
+    _connection: sqlite3.Connection | None = None
+
+    def __new__(cls) -> "Database":
+        """Crea o retorna la única instancia de Database."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self) -> None:
+        """Inicializa la conexión si no existe."""
+        if self._connection is None:
+            self._db_path = self._obtener_ruta_db()
+            self._conectar()
+
+    def _obtener_ruta_db(self) -> Path:
+        """
+        Obtiene la ruta absoluta a la base de datos.
+
+        Busca en este orden:
+        1. data/esalud.db (producción)
+        2. data/test_esalud.db (pruebas)
+        3. Lanza error si ninguna existe
+        """
+        # Ruta relativa desde src/utils/
+        base_dir = Path(__file__).parent.parent.parent  # EsSaludManager/
+        db_produccion = base_dir / "data" / "esalud.db"
+        db_test = base_dir / "data" / "test_esalud.db"
+
+        # Priorizar producción, fallback a test
+        if db_produccion.exists():
+            return db_produccion
+        elif db_test.exists():
+            return db_test
+        else:
+            # Si ninguna existe, usar producción (se creará al conectar)
+            return db_produccion
+
+    def _conectar(self) -> None:
+        """Establece la conexión SQLite con configuraciones óptimas."""
+        try:
+            self._connection = sqlite3.connect(
+                str(self._db_path),
+                check_same_thread=False,  # Necesario para Tkinter (hilos)
+                isolation_level=None,  # Autocommit (para triggers)
+            )
+
+            # Habilitar foreign keys (SQLite no las activa por defecto)
+            self._connection.execute("PRAGMA foreign_keys = ON;")
+
+            # Optimizaciones de rendimiento
+            self._connection.execute("PRAGMA journal_mode = WAL;")
+            self._connection.execute("PRAGMA synchronous = NORMAL;")
+            self._connection.execute("PRAGMA cache_size = 10000;")
+
+        except sqlite3.Error as e:
+            raise RuntimeError(f"❌ Error al conectar a SQLite: {e}")
+
+    def get_connection(self) -> sqlite3.Connection:
+        """
+        Retorna la conexión activa.
+
+        Returns:
+            sqlite3.Connection: Conexión a la base de datos.
+        """
+        if self._connection is None:
+            self._conectar()
+        return self._connection  # type: ignore[return-value]
+
+    def execute_query(self, query: str, params: tuple[Any, ...] = ()) -> sqlite3.Cursor:
+        """
+        Ejecuta una consulta SQL (SELECT).
+
+        Args:
+            query: Consulta SQL con placeholders (?).
+            params: Parámetros para la consulta.
+
+        Returns:
+            sqlite3.Cursor: Cursor con los resultados.
+        """
+        conn = self.get_connection()
+        cursor = conn.execute(query, params)
+        return cursor
+
+    def execute_many(self, query: str, params_list: list[tuple[Any, ...]]) -> None:
+        """
+        Ejecuta una consulta SQL múltiple (INSERT, UPDATE, DELETE).
+
+        Args:
+            query: Consulta SQL con placeholders (?).
+            params_list: Lista de tuplas con parámetros.
+        """
+        conn = self.get_connection()
+        conn.executemany(query, params_list)
+
+    def commit(self) -> None:
+        """Confirma la transacción actual."""
+        conn = self.get_connection()
+        conn.commit()
+
+    def rollback(self) -> None:
+        """Revierte la transacción actual."""
+        conn = self.get_connection()
+        conn.rollback()
+
+    def close(self) -> None:
+        """Cierra la conexión (solo para shutdown de la aplicación)."""
+        if self._connection is not None:
+            self._connection.close()
+            self._connection = None
 
     @classmethod
-    def get_instance(cls, db_name: str = "data/esalud.db") -> "Database":
-        """Obtener instancia única de Database"""
-        if cls._instancia is None:
-            cls._instancia = cls(db_name)
-        return cls._instancia
+    def reset_instance(cls) -> None:
+        """
+        Reinicia el singleton (útil para pruebas unitarias).
 
-    @contextmanager
-    def get_connection(self):
-        """Obtener conexión a la base de datos (context manager)"""
-        conn = sqlite3.connect(self.db_name)
-        conn.row_factory = sqlite3.Row  # Permite acceder a columnas por nombre
-        try:
-            yield conn
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
+        Uso en tests:
+            Database.reset_instance()
+        """
+        if cls._instance is not None and cls._instance._connection is not None:
+            cls._instance._connection.close()
+        cls._instance = None
+        cls._connection = None
 
-    def crear_tablas(self):
-        """Crear tablas si no existen (llamar al inicio)"""
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
 
-            # Tabla Paciente
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS Paciente (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    codigoPaciente TEXT UNIQUE NOT NULL,
-                    nombres TEXT NOT NULL,
-                    apellidos TEXT NOT NULL,
-                    tipoDocumento TEXT CHECK(tipoDocumento IN ('DNI', 'CE', 'PAS')),
-                    numeroDocumento TEXT NOT NULL,
-                    fechaNacimiento DATE,
-                    sexo TEXT CHECK(sexo IN ('M', 'F', 'O')),
-                    telefono TEXT,
-                    email TEXT,
-                    direccion TEXT,
-                    estado BOOLEAN DEFAULT 1,
-                    fechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    usuarioRegistro TEXT
-                )
-            """)
-
-            # Tabla Usuario
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS Usuario (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    empleadoId INTEGER,
-                    username TEXT UNIQUE NOT NULL,
-                    passwordHash TEXT NOT NULL,
-                    email TEXT,
-                    estado BOOLEAN DEFAULT 1,
-                    fechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    fechaUltimoAcceso DATETIME
-                )
-            """)
-
-            # Índices para búsquedas rápidas
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_paciente_documento ON Paciente(numeroDocumento)"
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_usuario_username ON Usuario(username)"
-            )
+# Instancia global (lazy initialization)
+db: Database = Database()
