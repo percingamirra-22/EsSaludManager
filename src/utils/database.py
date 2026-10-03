@@ -7,7 +7,7 @@ global en toda la aplicación.
 
 import sqlite3
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 
 class Database:
@@ -20,10 +20,10 @@ class Database:
         cursor = conn.execute("SELECT * FROM paciente")
     """
 
-    _instance: "Database | None" = None
+    _instance: Self | None = None
     _connection: sqlite3.Connection | None = None
 
-    def __new__(cls) -> "Database":
+    def __new__(cls) -> Self:
         """Crea o retorna la única instancia de Database."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -52,14 +52,20 @@ class Database:
         # Priorizar producción, fallback a test
         if db_produccion.exists():
             return db_produccion
-        elif db_test.exists():
+
+        if db_test.exists():
             return db_test
-        else:
-            # Si ninguna existe, usar producción (se creará al conectar)
-            return db_produccion
+
+        # Si ninguna existe, usar producción (se creará al conectar)
+        return db_produccion
 
     def _conectar(self) -> None:
-        """Establece la conexión SQLite con configuraciones óptimas."""
+        """
+        Establece la conexión SQLite y aplica configuraciones necesarias.
+
+        Raises:
+            RuntimeError: Si SQLite no puede abrir o configurar la conexión.
+        """
         try:
             self._connection = sqlite3.connect(
                 str(self._db_path),
@@ -75,19 +81,26 @@ class Database:
             self._connection.execute("PRAGMA synchronous = NORMAL;")
             self._connection.execute("PRAGMA cache_size = 10000;")
 
-        except sqlite3.Error as e:
-            raise RuntimeError(f"❌ Error al conectar a SQLite: {e}")
+        except sqlite3.Error as error:
+            raise RuntimeError(f"Error al conectar a SQLite: {error}") from error
 
     def get_connection(self) -> sqlite3.Connection:
         """
-        Retorna la conexión activa.
+        Retorna la conexión SQLite activa.
 
         Returns:
-            sqlite3.Connection: Conexión a la base de datos.
+            Conexión activa de SQLite.
+
+        Raises:
+            RuntimeError: Si no se puede crear la conexión.
         """
         if self._connection is None:
             self._conectar()
-        return self._connection  # type: ignore[return-value]
+
+        if self._connection is None:
+            raise RuntimeError("No se pudo establecer la conexión SQLite.")
+
+        return self._connection
 
     def execute_query(self, query: str, params: tuple[Any, ...] = ()) -> sqlite3.Cursor:
         """

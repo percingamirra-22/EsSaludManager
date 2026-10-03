@@ -12,6 +12,12 @@ reportlab==4.2.0
 # Pruebas
 coverage==7.6.0
 
+# Soporte de zona horaria IANA para Windows
+tzdata==2026.4
+
+# RUFF (Python linter)
+ruff==0.16.10
+
 # Empaquetado
 pyinstaller==6.10.0
 
