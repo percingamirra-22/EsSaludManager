@@ -1,6 +1,25 @@
-from .cita import Cita, EstadoCita
-from .medico import Medico
-from .paciente import Paciente
-from .usuario import Usuario
+"""
+Entidades de dominio de EsSaludManager.
+"""
 
-__all__ = ["Cita", "EstadoCita", "Medico", "Paciente", "Usuario"]
+from .auditoria import Auditoria
+from .medicamento import Medicamento
+from .paciente import Paciente
+from .permiso import Permiso
+from .proveedor import Proveedor
+from .reporte import Reporte
+from .rol import Rol
+from .seguro import Seguro
+from .servicio import Servicio
+
+__all__ = [
+    "Auditoria",
+    "Medicamento",
+    "Paciente",
+    "Permiso",
+    "Proveedor",
+    "Reporte",
+    "Rol",
+    "Seguro",
+    "Servicio",
+]
