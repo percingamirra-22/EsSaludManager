@@ -16,6 +16,7 @@ Aplicación de escritorio para la gestión de:
 - [x] Modelado ERE y relacional
 - [x] Base de datos SQLite (esquema + índices)
 - [x] Repositorios (capa de datos)
+- [x] Modelos
 - [ ] Servicios
 - [ ] GUI
 - [ ] Pruebas
