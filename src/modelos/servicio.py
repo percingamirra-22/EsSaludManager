@@ -1,11 +1,11 @@
 """
-Modelo base abstracto para servicios médicos.
+Modelo base para servicios médicos.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, TypedDict
 
 from src.utils.validaciones import (
     validar_dominio,
@@ -16,13 +16,26 @@ from src.utils.validaciones import (
 TIPOS_SERVICIO = frozenset({"consulta", "examen", "procedimiento"})
 
 
+class DatosServicio(TypedDict):
+    """Datos comunes de un servicio obtenidos desde SQLite."""
+
+    id: int | None
+    codigo_servicio: str
+    nombre_servicio: str
+    tipo_servicio: str
+    costo_base: float
+    estado: bool
+    fecha_registro: datetime | None
+
+
 @dataclass
 class Servicio(ABC):
     """
-    Clase base para servicios médicos.
+    Representa el catálogo base de servicios médicos.
 
-    Las subclases Consulta y ExamenMedico comparten la identidad del
-    servicio en SQLite mediante una relación PK/FK con la tabla servicio.
+    Consulta y ExamenMedico se relacionan con servicio mediante servicio_id.
+    La persistencia y creación coordinada se implementa en los servicios
+    de negocio.
     """
 
     codigo_servicio: str
@@ -54,15 +67,6 @@ class Servicio(ABC):
             float("inf"),
             "costo_base",
         )
-
-    @abstractmethod
-    def tipo_detalle(self) -> str:
-        """
-        Retorna el tipo concreto del servicio.
-
-        Returns:
-            Identificador del subtipo de servicio.
-        """
 
     def actualizar(self, datos: dict[str, Any]) -> None:
         """
@@ -103,15 +107,15 @@ class Servicio(ABC):
         }
 
     @classmethod
-    def datos_comunes_desde_fila(cls, fila: dict[str, Any]) -> dict[str, object]:
+    def datos_comunes_desde_fila(cls, fila: dict[str, Any]) -> DatosServicio:
         """
-        Convierte una fila SQLite en datos comunes para una subclase.
+        Convierte una fila SQLite en datos comunes de Servicio.
 
         Args:
             fila: Fila de la tabla servicio.
 
         Returns:
-            Datos que una subclase puede desempaquetar en su constructor.
+            Datos tipados de Servicio.
         """
         fecha_registro = fila.get("fecha_registro")
 

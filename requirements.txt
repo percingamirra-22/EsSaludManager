@@ -13,7 +13,7 @@ reportlab==4.2.0
 coverage==7.6.0
 
 # Soporte de zona horaria IANA para Windows
-tzdata==2026.4
+tzdata==2026.5
 
 # RUFF (Python linter)
 ruff==0.16.10
