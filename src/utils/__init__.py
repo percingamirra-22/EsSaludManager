@@ -9,6 +9,15 @@ Contiene:
 - logger: Logger centralizado (Singleton).
 """
 
+from .configuracion import Configuracion, configuracion
 from .database import Database, db
+from .logger import LogSistema, logger
 
-__all__ = ["Database", "db"]
+__all__ = [
+    "Configuracion",
+    "Database",
+    "LogSistema",
+    "configuracion",
+    "db",
+    "logger",
+]
