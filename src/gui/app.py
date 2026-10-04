@@ -3,7 +3,7 @@ Aplicación principal (GUI con Tkinter)
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
 
 class App:

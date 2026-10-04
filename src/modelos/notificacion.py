@@ -73,19 +73,19 @@ class Notificacion:
 
     def to_dict(self) -> dict[str, object]:
         """Convierte el modelo al formato SQLite."""
-        return {
+        datos: dict[str, object] = {
             "paciente_id": self.paciente_id,
             "cita_id": self.cita_id,
             "tipo_notificacion": self.tipo_notificacion,
             "mensaje": self.mensaje,
-            "fecha_envio": (
-                self.fecha_envio.isoformat(sep=" ")
-                if self.fecha_envio is not None
-                else None
-            ),
             "estado": self.estado,
             "canal": self.canal,
         }
+
+        if self.fecha_envio is not None:
+            datos["fecha_envio"] = self.fecha_envio.isoformat()
+
+        return datos
 
     @classmethod
     def from_row(cls, fila: dict[str, Any]) -> "Notificacion":

@@ -2,14 +2,15 @@
 import tkinter as tk
 from tkinter import ttk
 
-# Importamos utilidades
-from src.utils.configuracion import Configuracion 
-from src.utils.logger import LogSistema 
-
 # Importamos las ventanas secundarias que acabas de crear
 from src.gui.ventanas.ventana_citas import VentanaCitas
 from src.gui.ventanas.ventana_historial import VentanaHistorial
 from src.gui.ventanas.ventana_medicamentos import VentanaMedicamentos
+
+# Importamos utilidades
+from src.utils.configuracion import Configuracion
+from src.utils.logger import LogSistema
+
 
 class VentanaPrincipal:
     def __init__(self):

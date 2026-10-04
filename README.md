@@ -17,7 +17,7 @@ Aplicación de escritorio para la gestión de:
 - [x] Base de datos SQLite (esquema + índices)
 - [x] Repositorios (capa de datos)
 - [x] Modelos
-- [ ] Servicios
+- [x] Servicios
 - [ ] GUI
 - [ ] Pruebas
 - [ ] Documentación
@@ -82,6 +82,7 @@ coverage report
 ```
 
 ## Estructura del proyecto
+``` 
 EsSaludManager/
 ├── data/ # Capa de datos
 │ ├── esalud.db # Base de datos SQLite (producción)
@@ -120,9 +121,10 @@ EsSaludManager/
 ├── main.py
 ├── README.md
 └── setup.py
+``` 
 
 ## Equipo
-- **Persona 1**: Backend, BD, Repositorios, Integración
+- **Miembro 1**: Backend, BD, Repositorios, Integración
   - Responsable: Percing Amir Rodriguez Arce
   - Estado: COMPLETADO
   - Entregables:
@@ -131,13 +133,20 @@ EsSaludManager/
     - Singleton de conexión (`database.py`)
     - 7 repositorios implementados y probados
 
-- **Persona 2**: Modelos, Servicios
--> Responsable: Piero Garay Sarango Alexander
+- **Miembro 2**: Modelos, Servicios
+  - Responsable: Piero Garay Sarango Alexander
+  - Estado: COMPLETADO
+  - Entregables:
+    - Modelos de dominio para pacientes, historial clínico, citas, empleados, usuarios, medicamentos, coberturas, facturación y pagos.
+    - Repositorios adicionales para lotes, movimientos, recetas, coberturas, facturas, pagos, notificaciones, órdenes y exámenes médicos.
+    - Servicios de negocio para pacientes, historial, usuarios, auditoría, citas, medicamentos, reportes, seguros, coberturas, recetas, facturación, pagos, notificaciones y exámenes.
+    - Validaciones de negocio integradas con `src/utils/validaciones.py`.
+    - Pruebas manuales integrales de modelos y servicios.
 
-- **Persona 3**: GUI
+- **Miembro 3**: GUI
 -> Responsable: Anderson Daniel Luque Rivera
 
-- **Persona 4**: Pruebas
+- **Miembro 4**: Pruebas
 -> Responsable: Damaris Jarumy Vilca Lingan
 
 ## Documentación técnica

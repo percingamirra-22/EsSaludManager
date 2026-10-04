@@ -1,7 +1,9 @@
 # src/gui/ventanas/ventana_medicamentos.py
 import tkinter as tk
 from tkinter import ttk
+
 from src.utils.logger import LogSistema
+
 
 class VentanaMedicamentos:
     def __init__(self, ventana_padre):
