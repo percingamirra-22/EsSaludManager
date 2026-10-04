@@ -217,7 +217,7 @@ EsSaludManager/
     - 7 repositorios implementados y probados
 
 - **Miembro 2**: Modelos, Servicios
-  - Responsable: Piero Garay Sarango Alexander
+  - Responsable: Piero Garay Sarango Alexander (Mejorado por el miembro 1)
   - Estado: COMPLETADO
   - Entregables:
     - Modelos de dominio para pacientes, historial clínico, citas, empleados, usuarios, medicamentos, coberturas, facturación y pagos.
@@ -228,9 +228,11 @@ EsSaludManager/
 
 - **Miembro 3**: GUI
 -> Responsable: Anderson Daniel Luque Rivera
+  - Implementó Ventanas para la GUI
 
 - **Miembro 4**: Pruebas
 -> Responsable: Damaris Jarumy Vilca Lingan
+  - Implementó algunas pruebas unitarias
 
 ## Documentación técnica
 - [Modelo ERE y Relacional](docs/modelo_ere.md)
