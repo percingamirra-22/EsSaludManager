@@ -87,40 +87,123 @@ EsSaludManager/
 ├── data/ # Capa de datos
 │ ├── esalud.db # Base de datos SQLite (producción)
 │ ├── test_esalud.db # Base de datos SQLite (pruebas)
+│ ├── __init__.py
 │ └── scripts/
-│ ├── create_tables.sql # Esquema completo (tablas + índices)
-│ ├── insert_initial_data.sql # Datos iniciales
-│ ├── migrate_v1.sql # Migraciones futuras
-│ └── ejecutar_schema.py # Script de inicialización
+│   ├── create_tables.sql # Esquema completo (tablas + índices)
+│   ├── insert_initial_data.sql # Datos iniciales
+│   ├── migrate_v1.sql # Migraciones futuras
+│   └── ejecutar_schema.py # Script de inicialización
 ├── src/
 │ ├── modelos/ # Entidades de dominio (PENDIENTE)
+│ │ ├── __init__.py
+│ │ ├── auditoria.py
+│ │ ├── cita.py
+│ │ ├── cobertura.py
+│ │ ├── consulta.py
+│ │ ├── empleado.py
+│ │ ├── entrada_historial.py
+│ │ ├── especialista.py
+│ │ ├── examen_medico.py
+│ │ ├── factura.py
+│ │ ├── gerente.py
+│ │ ├── historial_clinico.py
+│ │ ├── item_factura.py
+│ │ ├── item_receta.py
+│ │ ├── lote_medicamento.py
+│ │ ├── medicamento.py
+│ │ ├── movimiento_medicamento.py
+│ │ ├── notificacion.py
+│ │ ├── orden_examen.py
+│ │ ├── paciente.py
+│ │ ├── pago.py
+│ │ ├── permiso.py
+│ │ ├── proveedor.py
+│ │ ├── recepcionista.py
+│ │ ├── receta_medica.py
+│ │ ├── reporte.py
+│ │ ├── rol.py
+│ │ ├── seguro.py
+│ │ ├── servicio.py
+│ │ ├── sesion.py
+│ │ ├── tecnico.py
+│ │ ├── usuario_rol.py
+│ │ └── usuario.py
 │ ├── repositorios/ # Acceso a datos (COMPLETADO)
-│ │ ├── base_repository.py
-│ │ ├── usuario_repository.py
+│ │ ├── __init__.py
 │ │ ├── auditoria_repository.py
-│ │ ├── paciente_repository.py
-│ │ ├── historial_repository.py
+│ │ ├── base_repository.py
 │ │ ├── cita_repository.py
-│ │ └── medicamento_repository.py
+│ │ ├── cobertura_repository.py
+│ │ ├── examen_medico_repository.py
+│ │ ├── factura_repository.py
+│ │ ├── historial_repository.py
+│ │ ├── lote_medicamento_repository.py
+│ │ ├── medicamento_repository.py
+│ │ ├── movimiento_medicamento_repository.py
+│ │ ├── notificacion_repository.py
+│ │ ├── orden_examen_repository.py
+│ │ ├── paciente_repository.py
+│ │ ├── receta_repository.py
+│ │ ├── reporte_repository.py
+│ │ ├── seguro_repository.py
+│ │ └── usuario_repository.py
 │ ├── servicios/ # Lógica de negocio (PENDIENTE)
+│ │ ├── __init__.py
+│ │ ├── auditoria_service.py
+│ │ ├── cita_service.py
+│ │ ├── cobertura_service.py
+│ │ ├── examen_medico_service.py
+│ │ ├── factura_service.py
+│ │ ├── historial_service.py
+│ │ ├── medicamento_service.py
+│ │ ├── notificacion_service.py
+│ │ ├── paciente_service.py
+│ │ ├── pago_service.py
+│ │ ├── receta_service.py
+│ │ ├── reporte_service.py
+│ │ ├── seguro_service.py
+│ │ └── usuario_service.py
 │ ├── gui/ # Interfaz de usuario (PENDIENTE)
-│ └── utils/ # Utilidades
-│ ├── database.py # Singleton de conexión SQLite
-│ ├── validaciones.py # Validaciones de datos (PENDIENTE)
-│ ├── seguridad.py # Hash, RBAC (PENDIENTE)
-│ ├── configuracion.py # Configuración global (PENDIENTE)
-│ └── logger.py # Logger centralizado (PENDIENTE)
-├── tests/ # Pruebas unitarias (PENDIENTE)
+│ │ ├── __init__.py
+│ │ ├── componentes/
+│ │ │ └── __init__.py
+│ │ ├── formularios/
+│ │ │ └── __init__.py
+│ │ └── ventanas/
+│ │   ├── __init__.py
+│ │   ├── ventana_citas.py
+│ │   ├── ventana_historial.py
+│ │   ├── ventana_medicamentos.py
+│ │   └── ventana_principal.py
+│ ├── utils/ # Utilidades
+│ │ ├── __init__.py
+│ │ ├── database.py # Singleton de conexión SQLite
+│ │ ├── validaciones.py # Validaciones de datos (PENDIENTE)
+│ │ ├── seguridad.py # Hash, RBAC (PENDIENTE)
+│ │ ├── configuracion.py # Configuración global (PENDIENTE)
+│ │ └── logger.py # Logger centralizado (PENDIENTE)
+│ ├── tests/ # Pruebas unitarias (PENDIENTE)
+│ │ ├── __init__.py
+│ │ ├── test_backend.py
+│ │ ├── test_modelos.py
+│ │ ├── test_seguridad.py
+│ │ ├── test_servicios.py
+│ │ └── test_validaciones.py
+│ ├── __init__.py
+│ └── app.py
 ├── docs/ # Documentación
 │ ├── requerimientos.md
 │ ├── diagrama_clases.plantuml
 │ ├── modelo_ere.md # Modelo ERE + relacional
 │ ├── manual_usuario.md # (PENDIENTE)
 │ └── manual_tecnico.md # (PENDIENTE)
-├── requirements.txt
+├── .gitattributes
+├── .gitignore
+├── LICENSE
 ├── main.py
 ├── README.md
-└── setup.py
+└── requirements.txt
+└── setup.py # (PENDIENTE)
 ``` 
 
 ## Equipo
