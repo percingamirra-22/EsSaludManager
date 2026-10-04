@@ -1,7 +1,9 @@
 # src/gui/ventanas/ventana_historial.py
 import tkinter as tk
 from tkinter import ttk
+
 from src.utils.logger import LogSistema
+
 
 class VentanaHistorial:
     def __init__(self, ventana_padre):

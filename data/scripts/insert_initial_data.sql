@@ -142,6 +142,32 @@ INSERT INTO empleado (codigo_empleado, nombres, apellidos, tipo_documento, numer
     ('EMP004', 'Ana', 'Gomez', 'DNI', '11223344', '998877665', 'ana.gomez@esalud.com', '2026-02-15', 1, 'admin'),
     ('EMP005', 'Carlos', 'Lopez', 'DNI', '44332211', '955667788', 'carlos.lopez@esalud.com', '2026-03-01', 1, 'admin');
 
+-- Empleado adicional sin usuario, para pruebas de registro de usuario
+INSERT INTO empleado (
+    codigo_empleado,
+    nombres,
+    apellidos,
+    tipo_documento,
+    numero_documento,
+    telefono,
+    email,
+    fecha_contratacion,
+    estado,
+    usuario_registro
+) VALUES
+    (
+        'EMP006',
+        'Prueba',
+        'Usuario',
+        'DNI',
+        '99999999',
+        '900000001',
+        'prueba.usuario@esalud.com',
+        '2026-01-01',
+        1,
+        'admin'
+    );
+
 -- ============================================
 -- Especialidades para los empleados de ejemplo
 -- ============================================
@@ -189,6 +215,41 @@ INSERT INTO servicio (codigo_servicio, nombre_servicio, tipo_servicio, costo_bas
     ('SERV003', 'Examen de Sangre', 'examen', 30.00, 1),
     ('SERV004', 'Radiografía', 'examen', 40.00, 1),
     ('SERV005', 'Electrocardiograma', 'examen', 35.00, 1);
+
+-- ============================================
+-- Proveedores básicos
+-- ============================================
+
+INSERT INTO proveedor (
+    razon_social,
+    ruc,
+    direccion,
+    telefono,
+    email,
+    contacto_nombre,
+    contacto_telefono,
+    estado
+) VALUES
+    (
+        'Distribuidora Médica SAC',
+        '20100070970',
+        'Av. Salud 123, Lima',
+        '987654321',
+        'ventas@distribuidoramedica.pe',
+        'Carlos Ramírez',
+        '987654322',
+        1
+    ),
+    (
+        'Farmacéutica Nacional S.A.',
+        '20512345678',
+        'Jr. Medicina 456, Lima',
+        '912345678',
+        'contacto@farmaceuticanacional.pe',
+        'Lucía Torres',
+        '912345679',
+        1
+    );
 
 -- ============================================
 -- Seguros
