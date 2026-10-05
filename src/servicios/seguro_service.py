@@ -163,3 +163,8 @@ class SeguroService:
         """Verifica si un seguro está vigente."""
         seguro = self.obtener_seguro(seguro_id)
         return seguro.verificar_vigencia(fecha_consulta)
+
+    def listar_seguros(self) -> list[Seguro]:
+        """Lista todos los seguros registrados."""
+        filas = self._seguro_repository.list_all()
+        return [Seguro.from_row(fila) for fila in filas]

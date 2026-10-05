@@ -146,3 +146,15 @@ class RecetaRepository(BaseRepository[dict[str, Any]]):
         self._db.commit()
 
         return cursor.rowcount > 0
+
+    def list_all(self) -> list[dict[str, Any]]:
+        """Retorna todas las recetas registradas."""
+        query = "SELECT * FROM receta_medica ORDER BY id"
+        cursor = self._db.execute_query(query)
+        filas = cursor.fetchall()
+
+        if not filas:
+            return []
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+        return [dict(zip(columnas, fila)) for fila in filas]

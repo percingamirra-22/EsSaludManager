@@ -98,3 +98,15 @@ class ExamenMedicoRepository(BaseRepository[dict[str, Any]]):
     ) -> bool:
         """Actualiza el estado de un examen."""
         return self.update(examen_id, {"estado": estado})
+
+    def list_all(self) -> list[dict[str, Any]]:
+        """Retorna todos los exámenes médicos registrados."""
+        query = "SELECT * FROM examen_medico ORDER BY id"
+        cursor = self._db.execute_query(query)
+        filas = cursor.fetchall()
+
+        if not filas:
+            return []
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+        return [dict(zip(columnas, fila)) for fila in filas]

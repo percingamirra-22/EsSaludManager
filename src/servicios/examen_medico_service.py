@@ -2,6 +2,8 @@
 Servicio de negocio para órdenes y exámenes médicos.
 """
 
+from typing import Any
+
 from src.modelos.examen_medico import ExamenMedico
 from src.modelos.orden_examen import OrdenExamen
 from src.repositorios.examen_medico_repository import (
@@ -247,3 +249,7 @@ class ExamenMedicoService:
             examen_id,
             "cancelado",
         )
+
+    def listar_examenes(self) -> list[dict[str, Any]]:
+        """Lista todos los exámenes médicos registrados."""
+        return self._examen_repository.list_all()

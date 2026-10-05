@@ -167,3 +167,9 @@ class HistorialService:
             contenido,
             usuario_registro,
         )
+
+    def listar_historiales(self) -> list[HistorialClinico]:
+        """Lista todos los historiales clínicos."""
+        return [
+            HistorialClinico.from_row(fila) for fila in self._repositorio.list_all()
+        ]

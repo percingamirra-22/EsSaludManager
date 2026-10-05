@@ -239,3 +239,8 @@ class FacturaService:
         total_pagado = self._factura_repository.calcular_total_pagado(factura_id)
 
         return factura.generar_estado_cuenta(total_pagado)
+
+    def listar_facturas(self) -> list[Factura]:
+        """Lista todas las facturas registradas."""
+        filas = self._factura_repository.list_all()
+        return [Factura.from_row(fila) for fila in filas]

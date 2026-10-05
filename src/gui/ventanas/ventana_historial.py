@@ -1,28 +1,54 @@
-# src/gui/ventanas/ventana_historial.py
+"""
+Módulo de historial clínico.
+"""
+
 import tkinter as tk
 from tkinter import ttk
 
-from src.utils.logger import LogSistema
+from src.gui.componentes import TablaDatos
+from src.servicios import HistorialService
 
 
-class VentanaHistorial:
-    def __init__(self, ventana_padre):
-        self.window = tk.Toplevel(ventana_padre)
-        self.window.title("Historial Clínico")
-        self.window.geometry("400x300")
-        
-        self.logger = LogSistema.get_instance()
+class VentanaHistorial(ttk.Frame):
+    """Módulo para consultar historiales clínicos."""
 
-        ttk.Label(self.window, text="Buscar Historial", font=("Arial", 14, "bold")).pack(pady=15)
+    def __init__(self, padre: tk.Misc) -> None:
+        """Inicializa el módulo."""
+        super().__init__(padre)
+        self._servicio = HistorialService()
 
-        ttk.Label(self.window, text="Número de Historia o DNI:").pack(pady=5)
-        self.entrada_busqueda = ttk.Entry(self.window)
-        self.entrada_busqueda.pack(pady=5)
+        ttk.Label(
+            self,
+            text="Historial clínico",
+            style="Titulo.TLabel",
+        ).pack(pady=(24, 12))
 
-        ttk.Button(self.window, text="Buscar", command=self.buscar_historial).pack(pady=20)
+        self._tabla = TablaDatos(
+            self,
+            columnas=[
+                ("paciente", "ID paciente", 120),
+                ("historia", "Número historia", 180),
+                ("estado", "Estado", 120),
+                ("version", "Versión", 100),
+            ],
+        )
+        self._tabla.pack(fill=tk.BOTH, expand=True, padx=24, pady=(0, 24))
 
-    def buscar_historial(self):
-        busqueda = self.entrada_busqueda.get()
-        self.logger.registrar(f"Buscando historial de: {busqueda}", "INFO")
-        print(f"Buscando datos de {busqueda}...")
-        # Aquí luego tu compañero (Persona 2) conectará la base de datos
+        self._listar()
+
+    def _listar(self) -> None:
+        """Muestra los historiales registrados."""
+        self._tabla.limpiar()
+        historiales = self._servicio.listar_historiales()
+
+        for historial in historiales:
+            self._tabla.agregar_fila(
+                identificador=str(historial.id),
+                valores=(
+                    historial.paciente_id,
+                    historial.numero_historia,
+                    historial.estado,
+                    historial.version,
+                ),
+                datos={"id": historial.id},
+            )

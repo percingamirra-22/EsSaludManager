@@ -2,6 +2,8 @@
 Servicio de negocio para usuarios, autenticación y roles.
 """
 
+from typing import Any
+
 from src.modelos.usuario import Usuario
 from src.repositorios.usuario_repository import UsuarioRepository
 from src.utils.seguridad import generar_hash_password, verificar_password
@@ -143,3 +145,7 @@ class UsuarioService:
             permiso["recurso"] == recurso and permiso["accion"] == accion
             for permiso in permisos
         )
+
+    def listar_usuarios(self) -> list[dict[str, Any]]:
+        """Lista todos los usuarios registrados."""
+        return self._repositorio.list_all()
