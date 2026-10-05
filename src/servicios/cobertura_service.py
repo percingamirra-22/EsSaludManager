@@ -137,3 +137,8 @@ class CoberturaService:
         """Desactiva lógicamente una cobertura."""
         self.obtener_cobertura(cobertura_id)
         return self._cobertura_repository.desactivar(cobertura_id)
+
+    def listar_coberturas(self) -> list[Cobertura]:
+        """Lista todas las coberturas registradas."""
+        filas = self._cobertura_repository.list_all()
+        return [Cobertura.from_row(fila) for fila in filas]

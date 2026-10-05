@@ -3,6 +3,7 @@ Servicio de negocio para notificaciones.
 """
 
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from src.modelos.notificacion import Notificacion
@@ -113,3 +114,7 @@ class NotificacionService:
         """Marca una notificación como fallida."""
         self.obtener_notificacion(notificacion_id)
         return self._repositorio.marcar_fallida(notificacion_id)
+
+    def listar_notificaciones(self) -> list[dict[str, Any]]:
+        """Lista todas las notificaciones registradas."""
+        return self._repositorio.list_all()

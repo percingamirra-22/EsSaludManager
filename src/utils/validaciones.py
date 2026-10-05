@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 TIPOS_DOCUMENTO: Final[frozenset[str]] = frozenset({"DNI", "CE", "PAS"})
 SEXOS: Final[frozenset[str]] = frozenset({"M", "F", "O"})
-TIPOS_SEGURO: Final[frozenset[str]] = frozenset({"EsSalud", "Privado"})
+TIPOS_SEGURO: frozenset[str] = frozenset({"EsSalud", "Privado"})
 ESTADOS_CITA: Final[frozenset[str]] = frozenset(
     {"programada", "completada", "cancelada", "reprogramada"}
 )

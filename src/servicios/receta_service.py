@@ -198,3 +198,8 @@ class RecetaService:
             receta_id,
             {"estado": "cancelada"},
         )
+
+    def listar_recetas(self) -> list[RecetaMedica]:
+        """Lista todas las recetas médicas."""
+        filas = self._receta_repository.list_all()
+        return [RecetaMedica.from_row(fila) for fila in filas]

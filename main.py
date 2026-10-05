@@ -1,6 +1,7 @@
 """
 EsSaludManager - Sistema de gestión para establecimientos de salud.
 
+
 Curso: Lenguajes de Programación
 Fecha: 29 de septiembre de 2026
 """
@@ -11,7 +12,16 @@ from pathlib import Path
 
 from src.gui.app import App
 
-BASE_DIR = Path(__file__).parent
+
+def obtener_directorio_base() -> Path:
+    """Retorna el directorio base compatible con desarrollo y ejecutable."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent
+
+    return Path(__file__).parent
+
+
+BASE_DIR = obtener_directorio_base()
 DB_PATH = BASE_DIR / "data" / "esalud.db"
 SCRIPT_PATH = BASE_DIR / "data" / "scripts" / "ejecutar_schema.py"
 

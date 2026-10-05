@@ -162,3 +162,15 @@ class FacturaRepository(BaseRepository[dict[str, Any]]):
         resultado = cursor.fetchone()[0]
 
         return float(resultado)  # type: ignore[no-any-return]
+
+    def list_all(self) -> list[dict[str, Any]]:
+        """Retorna todas las facturas registradas."""
+        query = "SELECT * FROM factura ORDER BY id"
+        cursor = self._db.execute_query(query)
+        filas = cursor.fetchall()
+
+        if not filas:
+            return []
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+        return [dict(zip(columnas, fila)) for fila in filas]
